@@ -23,12 +23,15 @@ public class SampleCurlCall {
 	 static CountDownLatch latch ;
 	 static ExecutorService executor;
 	 static SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");  
-	 static String inputFile= "/Users/harry/input.csv";
-	 static String outputFile="/Users/harry/output.csv";
+//	 static String inputFile= "/Users/harry/input.csv";
+//	 static String outputFile="/Users/harry/output.csv";
 	public static void main(String[] args) {
-		Date date = new Date(); 
 		try {
-			  
+			  String inputFile= args[0];
+			  String outputFile=args[1];
+			  int numberthread=Integer.parseInt(args[2]);
+			  List<String> resultCurl = processInputFile(inputFile);
+			  System.out.println("size of CURLS statements is "+resultCurl.size());
 			Scanner myObj = new Scanner(System.in); 
 			System.out.println("are you sure you want start Thread? please enter your answer yes/no/y/n");
 
@@ -37,24 +40,11 @@ public class SampleCurlCall {
 			if(result.equalsIgnoreCase("yes") || result.equalsIgnoreCase("y") ) {
 				int thread=0;
 				//Enter Read File where we read CURL STATMENT
-				List<String> resultCurl = processInputFile(inputFile);
-				fos = new FileOutputStream(outputFile, true);
 				
-				Scanner numberofThread = new Scanner(System.in); // Create a Scanner object
-				System.out.println("how many thread you wanr enter");
-				int resultthread = numberofThread.nextInt();
-				System.out.println("your Answer is : " + resultthread);
-				if(resultthread<=0) {
-					System.out.println("we start Thread  default size as your Answer is less or eualto 0");
-					thread=resultCurl.size();
-				}
-				else {
-					System.out.println("we start  Thread with "+resultthread);
-					thread =resultthread;
-				}
-				executor = Executors.newFixedThreadPool(thread);
+				fos = new FileOutputStream(outputFile, true);
+				executor = Executors.newFixedThreadPool(numberthread);
 				latch= new CountDownLatch(resultCurl.size());
-				System.out.println("we start Thread time is ::"+formatter.format(date));  
+				System.out.println("we start Thread time is ::"+formatter.format(new Date()));  
 				for (String curlURL : resultCurl) {
 					executor.submit(() -> {
 						try {
@@ -79,7 +69,7 @@ public class SampleCurlCall {
 				latch.await();
 				fos.close();
 				
-				System.out.println("complate CSV Write Time is "+formatter.format(date));
+				System.out.println("complate CSV Write Time is "+formatter.format(new Date()));
 				 executor.shutdownNow();
 				
 			} catch (InterruptedException e) {
